@@ -2,6 +2,8 @@
 //R00174822
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 int get_question_count(const char *filepath) {
     FILE *fp;
@@ -82,14 +84,9 @@ int get_questions_and_answers(const char *filepath, char *questionArray[], char 
 
 int main() {
     int questionsCount = get_question_count("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt");
-    printf("There are %d Questions in the File\n", questionsCount);
 
     char *questions[questionsCount][100]; // makes array with same size as amount of lines in file
     char *answers[questionsCount][100];  // makes array with same size as amount of answers
-
-//    get_questions_and_answers("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt", questions, answers,
-//                              questionsCount);
-
 
     printf("got in question\n");
     const char *filepath = "C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt";
@@ -116,8 +113,10 @@ int main() {
 
 //        char line[100] = tempArray[k];
         char *question = strtok(tempArray[k], "?");
-        questions[k][100] = &question;
+        *questions[k] = question;
         char *answer = strtok(NULL, "? ");
+        *answers [k] = answer;
+
         printf("\nMQuestion: %s?", question);
         printf("\nMAnswer: %s", answer);
     }
@@ -125,7 +124,8 @@ int main() {
 
     printf("\nBack in Main\n");
     for (int i = 0; i < questionsCount; ++i) {
-        printf("%d Q:%s A:%s\n", i, questions[i], answers[i]);
+        printf("%d Q:%s A:%s\n", i, *questions[i], *answers[i]);
     }
+
     return 0;
 }
