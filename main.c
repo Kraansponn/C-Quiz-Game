@@ -48,19 +48,19 @@ int clue_level_3(char *answer) {
 
 int clue_level_4(char *answer) {
     int lenOfAnswer = strlen(answer);
-    for (int j = 0; j < 12; ++j) {
-
-        printf("%d\n", rand() % 50);
-    }
-
-    char clue[100];
+    char *clue[100];
 
     if (lenOfAnswer > 2) {
-        printf("%c", answer[0]);
-        for (int i = 0; i < strlen(answer) - 2; ++i) {
-            printf("-");
+        int rand_num1 = (rand() % (lenOfAnswer));
+        int rand_num2 = (rand() % (lenOfAnswer));
+        for (int i = 0; i < strlen(answer); ++i) {
+            clue[i] = '-';
         }
-        printf("%c", answer[lenOfAnswer - 1]);
+        clue[rand_num2] = answer[rand_num2];
+        clue[rand_num1] = answer[rand_num1];
+        for (int j = 0; j < strlen(answer); ++j) {
+            printf("%c", clue[j]);
+        }
     } else if (lenOfAnswer == 2) {
         printf("%c", answer[0]);
         printf("%c", answer[1]);
@@ -69,7 +69,8 @@ int clue_level_4(char *answer) {
     }
 }
 
-int clue_level_5(){}
+int clue_level_5() {}
+
 int main() {
     int questionsCount = get_question_count("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt");
     int difficultyLevel = 4;
@@ -114,7 +115,6 @@ int main() {
     char wordInput[100]; //used to store users answer
     char answerInLowercase[100];
     int correct = 0;
-    char *clue[100];
 
     while (questionsCount > questionsAnswered) {
 
