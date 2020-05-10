@@ -87,6 +87,22 @@ int clue_level_5(char *answer) {
     }
 }
 
+int print_to_File(const char *filepath, int difficulty, int totalnumberquestions, int totalcorrectquestions) {
+    FILE *output;
+    int i;
+    /* open the file for writing*/
+    output = fopen("quiz_history.txt", "w+");
+
+    fprintf(output, "Name of Test %s\n",filepath);
+    fprintf(output, "The difficulty Level was %d\n",difficulty);
+    fprintf(output, "There were %d questions\n",totalnumberquestions);
+    fprintf(output, "Of which you got %d right\n",totalcorrectquestions);
+
+    /* close the file*/
+    fclose(output);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     srand(time(0)); // used to generate a random seed for random generators used later
 
@@ -95,7 +111,8 @@ int main(int argc, char **argv) {
     FILE *fp;
     fp = fopen(filepath, "r"); //Opens file
     if (fp == NULL) { //Makes sure its not empty
-        printf("File \"%s\" does not exist!!!\nPlease make sure you are using Absolute Path\n progrmaName file int", filepath);
+        printf("File \"%s\" does not exist!!!\nPlease make sure you are using Absolute Path\n progrmaName file int",
+               filepath);
         exit(1);
     }
     int questionsCount = get_question_count(fp);
@@ -109,7 +126,6 @@ int main(int argc, char **argv) {
 
     for (int j = 0; j < questionsCount; ++j) { //Reads File contents and adds it to temporary Array
         fgets(tempArray[j], 100, fp);
-        printf("%s", tempArray[j]);
     }
     fclose(fp);// closes File
 
@@ -210,21 +226,18 @@ int main(int argc, char **argv) {
         }
 
         printf("%d questions answered correctly\n\n", correct);
-//        printf("Would you like to see the answers to the questions you got wrong?(y/n) ");
-//        scanf("%c", &getAnswers); //gets user input if they wish to continue playing
-//        getchar();
-//        if (((char *) getAnswers == 'Y') || (getAnswers == 'y')) {
-//            printf("hello\n");
-//            printf("hello\n");
-//            printf("hello\n");
-//            printf("hello\n");
-//            for (int i = 0; i < incorrect; ++i) {
-//                int wrongQuestion = answerTracker[i];
-//                printf("%d Q:%s? A:%s", i, *questions[wrongQuestion], *answers[wrongQuestion]);
-//            }
-//        }
+        printf("Would you like to see the answers to the questions you got wrong?(y/n) ");
+        getchar();
+        scanf("%c", &getAnswers); //gets user input if they wish to continue playing
+        getchar();
+        if (((char *) getAnswers == 'Y') || (getAnswers == 'y')) {
+            for (int i = 0; i < incorrect; ++i) {
+                int wrongQuestion = answerTracker[i];
+                printf("%d Q:%s? A:%s", i, *questions[wrongQuestion], *answers[wrongQuestion]);
+            }
+        }
         exit = 1;
     }
-
+    print_to_File(fp, difficultyLevel, questionsCount, correct);
     return 0;
 }
