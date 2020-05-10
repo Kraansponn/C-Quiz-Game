@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include<time.h>
+
 
 int get_question_count(const char *filepath) {
     FILE *fp;
@@ -15,24 +17,90 @@ int get_question_count(const char *filepath) {
         printf("File \"%s\" does not exist!!!\n", filepath);
         return -1;
     }
-
     while ((ch = fgetc(fp)) != EOF) {    //read character by character and check for new line
         if (ch == '\n')
             linesCount++;
     }
-
     return linesCount + 1; //returns the amount of lines +1 as it always shows theres 1 lines less
 }
 
-int compare() {}
+int clue_level_2(char *answer) {
+    for (int i = 0; i < strlen(answer); ++i) {
+        printf("-"); // prints dashes for lenght of answer
+    }
+}
+
+int clue_level_3(char *answer) {
+    int lenOfAnswer = strlen(answer);
+    if (lenOfAnswer > 2) {
+        printf("%c", answer[0]); //prints first letter
+        for (int i = 0; i < strlen(answer) - 2; ++i) { // prints dashes for lenght -2
+            printf("-");
+        }
+        printf("%c", answer[lenOfAnswer - 1]); //prints last letter
+    } else if (lenOfAnswer == 2) { //prints 1 and second letter if word is 2 letters long
+        printf("%c", answer[0]);
+        printf("%c", answer[1]);
+    } else {
+        printf("%c", answer[0]);//pritns only one letter if word is one letter long
+    }
+}
+
+int clue_level_4(char *answer) {
+    int lenOfAnswer = strlen(answer);
+    char *clue[100];
+
+    if (lenOfAnswer > 2) {
+        int rand_num1 = (rand() % (lenOfAnswer)); //gets a random number
+        int rand_num2 = (rand() % (lenOfAnswer));
+        for (int i = 0; i < strlen(answer); ++i) {
+            clue[i] = '-'; //set clues to dashes for lenght of answer
+        }
+        clue[rand_num2] = answer[rand_num2]; // changers the randomly selectd letters to actual letters from answer
+        clue[rand_num1] = answer[rand_num1];
+        for (int j = 0; j < strlen(answer); ++j) {
+            printf("%c", clue[j]); //prints the clue
+        }
+    } else if (lenOfAnswer == 2) { //prints both letters if theres only 2
+        printf("%c", answer[0]);
+        printf("%c", answer[1]);
+    } else {
+        printf("%c", answer[0]); //pritns 1 letter if only 1 there
+    }
+}
+
+int clue_level_5(char *answer) {
+    int lenOfAnswer = strlen(answer);
+    char *clue[100];
+    int randomness = 0; // used to see if random letter was assigned
+    if (lenOfAnswer > 2) {
+        for (int i = 0; i < strlen(answer) + 1; ++i) { //loops for lenght of answer
+            while (randomness == 0) {                   //keeps running until a new random letter is chosen
+                int rand_num1 = (rand() % (lenOfAnswer + 1));
+                if (clue[rand_num1] != '-') {           //used to keep track of what position have already been used
+                    printf("%c", answer[rand_num1]); // prints the position from the answer
+                    clue[rand_num1] = '-';
+                    randomness = 1; //breaks the loop as a random letter was used
+                }
+            }
+            randomness = 0; // resets randomness
+        }
+    } else if (lenOfAnswer == 2) {
+        printf("%c", answer[1]);
+        printf("%c", answer[2]);
+    } else {
+        printf("%c", answer[0]);
+    }
+}
 
 int main() {
+    srand(time(0)); // used to generate a random seed for random generators used later
     int questionsCount = get_question_count("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt");
+    int difficultyLevel = 6;
 
     char *questions[questionsCount][100]; // makes array with same size as amount of lines in file
     char *answers[questionsCount][100];  // makes array with same size as amount of answers
 
-    printf("got in question\n");
     const char *filepath = "C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt";
     FILE *fp;
     char *tempArray[questionsCount][100];
@@ -44,17 +112,12 @@ int main() {
     }
     fclose(fp);// closes File
 
-    printf("\nchecking contents \n");
-    for (int i = 0; i < questionsCount; ++i) {
-        printf("%s", tempArray[i]);
-    }
-
     for (int k = 0; k < questionsCount; ++k) {
 
-        char *question = strtok(tempArray[k], "?");
-        *questions[k] = question;
+        char *question = strtok(tempArray[k], "?");//breakes the temp array on characters
+        *questions[k] = question; // adds to questoion array
         char *answer = strtok(NULL, "? ");
-        *answers[k] = answer;
+        *answers[k] = answer;//adds to answers array
     }
 
     printf("\nBack in Main\n");
@@ -63,44 +126,68 @@ int main() {
     }
 
 
-    printf("There are %d Questions in the File\n", questionsCount);
     //Getting user input
     int questionsAnswered = 0; //used to run a while loop
     char wordInput[100]; //used to store users answer
-    char answerInLowercase[100];
-    int correct = 0;
+    char answerInLowercase[100]; //answer for the question to be asked
+    int correct = 0; //keep track of how many correctly answered question there are
+
+    if (difficultyLevel == 6) { // if difficulty 6 is selected it randomly picked between 1 or 5
+        difficultyLevel = (rand() % (5) +
+                           1); // has to be range to 5 as it will gen (0 - 4) and the plus 1 makes it between (1 - 5)
+    }
+
+    printf("There are %d Questions in the File\n", questionsCount); //tells the user how many questions were loaded
+    printf("difficulty level %d\n\n", difficultyLevel); // tells the user what the difficulty setting is
 
     while (questionsCount > questionsAnswered) {
-
-        printf("\n");
-        printf("%s:", *questions[questionsAnswered]);
-        scanf("%s", wordInput); //gets user input
-
-        for (int i = 0; wordInput[i]; i++) { //makes all the letters lowercase
-            wordInput[i] = tolower(wordInput[i]);
-        }
-
         strncpy(answerInLowercase, *answers[questionsAnswered], 100);
-
 
         for (int i = 0; answerInLowercase[i]; i++) { //makes all the letters lowercase
             answerInLowercase[i] = tolower(answerInLowercase[i]);
         }
 
         char *pos;
-        if ((pos=strchr(answerInLowercase, '\n')) != NULL)
+        if ((pos = strchr(answerInLowercase, '\n')) != NULL) // removes \n from answer so it can be compared
             *pos = '\0';
-        if ((pos=strchr(answerInLowercase, '\r')) != NULL)
+        if ((pos = strchr(answerInLowercase, '\r')) != NULL)// removes \r from answer so it can be compared
             *pos = '\0';
 
-        if (strcmp(answerInLowercase, wordInput) == 0) {
-            correct++;
+        //Clue
+        if (difficultyLevel == 1) { // used to give different clues based on the difficulty
+            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            printf("?");
+        } else if (difficultyLevel == 2) {
+            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            clue_level_2(answerInLowercase);
+        } else if (difficultyLevel == 3) {
+            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            clue_level_3(answerInLowercase);
+        } else if (difficultyLevel == 4) {
+            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            clue_level_4(answerInLowercase);
+        } else if (difficultyLevel == 5) {
+            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            clue_level_5(answerInLowercase);
         }
 
-        printf("%s", answerInLowercase);
-        printf("%s", wordInput);
-        printf("%d", correct);
+
+        scanf("%s", wordInput); //gets user input
+
+        for (int i = 0; wordInput[i]; i++) { //makes all the letters lowercase
+            wordInput[i] = tolower(wordInput[i]);
+        }
+
+        if (strcmp(answerInLowercase, wordInput) == 0) { //compares words to see if they are the same
+            printf("Correct");
+            correct++; // add to correctly answered
+        } else {
+            printf("Incorrect");
+        }
+
         questionsAnswered++;
+        printf("\n");
     }
+    printf("%d questions answered correctly", correct);
     return 0;
 }
