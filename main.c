@@ -120,12 +120,6 @@ int main() {
         *answers[k] = answer;//adds to answers array
     }
 
-    printf("\nBack in Main\n");
-    for (int i = 0; i < questionsCount; ++i) {
-        printf("%d Q:%s A:%s\n", i, *questions[i], *answers[i]);
-    }
-
-
     //Getting user input
     int questionsAnswered = 0; //used to run a while loop
     char wordInput[100]; //used to store users answer
@@ -137,11 +131,29 @@ int main() {
                            1); // has to be range to 5 as it will gen (0 - 4) and the plus 1 makes it between (1 - 5)
     }
 
-    printf("There are %d Questions in the File\n", questionsCount); //tells the user how many questions were loaded
+    printf("\nThere are %d Questions in the File\n", questionsCount); //tells the user how many questions were loaded
     printf("difficulty level %d\n\n", difficultyLevel); // tells the user what the difficulty setting is
 
     while (questionsCount > questionsAnswered) {
-        strncpy(answerInLowercase, *answers[questionsAnswered], 100);
+        //random question Picker
+        int questionNumber = 0;
+        char *usedQuestions[questionsCount];
+        int randomness = 0; // used to see if random letter was assigned
+            for (int i = 0; i < questionsCount; ++i) { //loops for lenght of answer
+                while (randomness == 0) {                   //keeps running until a new random letter is chosen
+                    int rand_num1 = (rand() % (questionsCount));
+                    if (usedQuestions[rand_num1] !=
+                        '-') {           //used to keep track of what position have already been used
+                        questionNumber = rand_num1;
+                        usedQuestions[rand_num1] = '-';
+                        randomness = 1; //breaks the loop as a random letter was used
+                    }
+                }
+                randomness = 0; // resets randomness
+
+
+        strncpy(answerInLowercase, *answers[questionNumber], 100);
+
 
         for (int i = 0; answerInLowercase[i]; i++) { //makes all the letters lowercase
             answerInLowercase[i] = tolower(answerInLowercase[i]);
@@ -155,19 +167,19 @@ int main() {
 
         //Clue
         if (difficultyLevel == 1) { // used to give different clues based on the difficulty
-            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
             printf("?");
         } else if (difficultyLevel == 2) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
             clue_level_2(answerInLowercase);
         } else if (difficultyLevel == 3) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
             clue_level_3(answerInLowercase);
         } else if (difficultyLevel == 4) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
             clue_level_4(answerInLowercase);
         } else if (difficultyLevel == 5) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionsAnswered]);
+            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
             clue_level_5(answerInLowercase);
         }
 
@@ -187,6 +199,8 @@ int main() {
 
         questionsAnswered++;
         printf("\n");
+
+    }
     }
     printf("%d questions answered correctly", correct);
     return 0;
