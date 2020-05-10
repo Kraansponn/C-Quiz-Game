@@ -116,8 +116,11 @@ int main() {
 
 //        char line[100] = tempArray[k];
         char *question = strtok(tempArray[k], "?");
-        questions[k][100] = &question;
+        *questions[k] = question;
+
         char *answer = strtok(NULL, "? ");
+        *answers [k] = answer;
+
         printf("\nMQuestion: %s?", question);
         printf("\nMAnswer: %s", answer);
     }
@@ -125,7 +128,7 @@ int main() {
 
     printf("\nBack in Main\n");
     for (int i = 0; i < questionsCount; ++i) {
-        printf("%d Q:%s A:%s\n", i, questions[i], answers[i]);
+        printf("%d Q:%s A:%s\n", i, *questions[i], *answers[i]);
     }
     return 0;
 }
