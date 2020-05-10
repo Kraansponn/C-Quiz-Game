@@ -1,3 +1,6 @@
+question? A
+question? An
+question? Ans
 question? Answer
 What is the capital of France? Paris
 What is the capital of Italy? Rome
