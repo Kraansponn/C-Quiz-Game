@@ -22,7 +22,7 @@ int get_question_count(const char *filepath) {
     return linesCount + 1; //returns the amount of lines +1 as it always shows theres 1 lines less
 }
 
-int get_questions_and_answers(const char *filepath, char *questionArray, char *answersArray, int questionsCount) {
+int get_questions_and_answers(const char *filepath, char *questionArray[], char *answersArray[], int questionsCount) {
     printf("got in question\n");
     FILE *fp;
     char string[100];
@@ -41,6 +41,26 @@ int get_questions_and_answers(const char *filepath, char *questionArray, char *a
     for (int i = 0; i < questionsCount; ++i) {
         printf("%s", tempArray[i]);
     }
+
+
+//    printf("\nTesting build quesiotn\n");
+//    char questionMark = "?";
+//    char *nextLine = "\n";
+//    char currentChar;
+//    char *question[100];
+//    for (int k = 0; k < questionsCount; ++k) {
+//
+//        for (int l = 0; l < 100; ++l) {
+//
+//            currentChar = tempArray[k][l];
+//
+//            if (questionMark!= currentChar) {
+//                question[l] = currentChar;
+//            }
+////            questionArray[k]=question;
+//        }
+//        printf("%s\n", question);
+//    }
 
 //    for (int z = 0; z < questionsCount; ++z) {
 //        printf("%s  ", tempArray[z]);
@@ -67,10 +87,43 @@ int main() {
     char *questions[questionsCount][100]; // makes array with same size as amount of lines in file
     char *answers[questionsCount][100];  // makes array with same size as amount of answers
 
-    get_questions_and_answers("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt", questions, answers,
-                              questionsCount);
+//    get_questions_and_answers("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt", questions, answers,
+//                              questionsCount);
 
-    printf("Back in Main\n");
+
+    printf("got in question\n");
+    const char *filepath = "C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt";
+    FILE *fp;
+    char string[100];
+    char *tempArray[questionsCount][100];
+    char **ptr = tempArray;
+    fp = fopen(filepath, "r"); //opens file
+
+    for (int j = 0; j < questionsCount; ++j) { //Reads File contents and adds it to temporary Array
+        fgets(tempArray[j], 100, fp);
+        printf("%s", tempArray[j]);
+    }
+    fclose(fp);// closes File
+
+    printf("\nchecking contents \n");
+    for (int i = 0; i < questionsCount; ++i) {
+        printf("%s", tempArray[i]);
+    }
+    printf("\nyello hellow");
+    printf("yello hellow\n");
+
+    for (int k = 0; k < questionsCount; ++k) {
+
+//        char line[100] = tempArray[k];
+        char *question = strtok(tempArray[k], "?");
+        questions[k][100] = &question;
+        char *answer = strtok(NULL, "? ");
+        printf("\nMQuestion: %s?", question);
+        printf("\nMAnswer: %s", answer);
+    }
+
+
+    printf("\nBack in Main\n");
     for (int i = 0; i < questionsCount; ++i) {
         printf("%d Q:%s A:%s\n", i, questions[i], answers[i]);
     }
