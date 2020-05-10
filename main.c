@@ -8,16 +8,10 @@
 
 
 int get_question_count(const char *filepath) {
-    FILE *fp;
     char ch;
     int linesCount = 0; //used to keep track of how many lines there are
 
-    fp = fopen(filepath, "r"); //Opens file
-    if (fp == NULL) { //Makes sure its not empty
-        printf("File \"%s\" does not exist!!!\n", filepath);
-        return -1;
-    }
-    while ((ch = fgetc(fp)) != EOF) {    //read character by character and check for new line
+    while ((ch = fgetc(filepath)) != EOF) {    //read character by character and check for new line
         if (ch == '\n')
             linesCount++;
     }
@@ -93,22 +87,45 @@ int clue_level_5(char *answer) {
     }
 }
 
-int main() {
+int print_to_File(const char *filepath, int difficulty, int totalnumberquestions, int totalcorrectquestions) {
+    FILE *output;
+    int i;
+    /* open the file for writing*/
+    output = fopen("quiz_history.txt", "w+");
+
+    fprintf(output, "Name of Test %s\n",filepath);
+    fprintf(output, "The difficulty Level was %d\n",difficulty);
+    fprintf(output, "There were %d questions\n",totalnumberquestions);
+    fprintf(output, "Of which you got %d right\n",totalcorrectquestions);
+
+    /* close the file*/
+    fclose(output);
+    return 0;
+}
+
+int main(int argc, char **argv) {
     srand(time(0)); // used to generate a random seed for random generators used later
-    int questionsCount = get_question_count("C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt");
-    int difficultyLevel = 6;
+
+//    const char *filepath = "C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt";
+    const char *filepath = argv[1]; // reads in file location (Used Absolute Path)
+    FILE *fp;
+    fp = fopen(filepath, "r"); //Opens file
+    if (fp == NULL) { //Makes sure its not empty
+        printf("File \"%s\" does not exist!!!\nPlease make sure you are using Absolute Path\n progrmaName file int",
+               filepath);
+        exit(1);
+    }
+    int questionsCount = get_question_count(fp);
+
+    int difficultyLevel = atoi(argv[2]); // reading in difficulty from paramater
 
     char *questions[questionsCount][100]; // makes array with same size as amount of lines in file
     char *answers[questionsCount][100];  // makes array with same size as amount of answers
-
-    const char *filepath = "C:\\Users\\Kornel\\Desktop\\C-Assigment2\\SampleQuestions.txt";
-    FILE *fp;
     char *tempArray[questionsCount][100];
     fp = fopen(filepath, "r"); //opens file
 
     for (int j = 0; j < questionsCount; ++j) { //Reads File contents and adds it to temporary Array
         fgets(tempArray[j], 100, fp);
-        printf("%s", tempArray[j]);
     }
     fclose(fp);// closes File
 
@@ -125,6 +142,10 @@ int main() {
     char wordInput[100]; //used to store users answer
     char answerInLowercase[100]; //answer for the question to be asked
     int correct = 0; //keep track of how many correctly answered question there are
+    int incorrect = 0; //keep track of how many incorrectly answered question there are
+    char *answerTracker[questionsCount]; //Used to keep track of which question the user got wrong
+    char getAnswers; //used when asking if the player wishes to continue
+
 
     if (difficultyLevel == 6) { // if difficulty 6 is selected it randomly picked between 1 or 5
         difficultyLevel = (rand() % (5) +
@@ -133,75 +154,90 @@ int main() {
 
     printf("\nThere are %d Questions in the File\n", questionsCount); //tells the user how many questions were loaded
     printf("difficulty level %d\n\n", difficultyLevel); // tells the user what the difficulty setting is
-
-    while (questionsCount > questionsAnswered) {
+    int exit = 0;
+    while (exit == 0) {
         //random question Picker
         int questionNumber = 0;
         char *usedQuestions[questionsCount];
         int randomness = 0; // used to see if random letter was assigned
-            for (int i = 0; i < questionsCount; ++i) { //loops for lenght of answer
-                while (randomness == 0) {                   //keeps running until a new random letter is chosen
-                    int rand_num1 = (rand() % (questionsCount));
-                    if (usedQuestions[rand_num1] !=
-                        '-') {           //used to keep track of what position have already been used
-                        questionNumber = rand_num1;
-                        usedQuestions[rand_num1] = '-';
-                        randomness = 1; //breaks the loop as a random letter was used
-                    }
+        for (int i = 0; i < questionsCount; ++i) { //loops for lenght of answer
+            while (randomness == 0) {                   //keeps running until a new random letter is chosen
+                int rand_num1 = (rand() % (questionsCount));
+                if (usedQuestions[rand_num1] !=
+                    '-') {           //used to keep track of what position have already been used
+                    questionNumber = rand_num1;
+                    usedQuestions[rand_num1] = '-';
+                    randomness = 1; //breaks the loop as a random letter was used
                 }
-                randomness = 0; // resets randomness
+            }
+            randomness = 0; // resets randomness
 
 
-        strncpy(answerInLowercase, *answers[questionNumber], 100);
+            strncpy(answerInLowercase, *answers[questionNumber], 100);
 
 
-        for (int i = 0; answerInLowercase[i]; i++) { //makes all the letters lowercase
-            answerInLowercase[i] = tolower(answerInLowercase[i]);
+            for (int i = 0; answerInLowercase[i]; i++) { //makes all the letters lowercase
+                answerInLowercase[i] = tolower(answerInLowercase[i]);
+            }
+
+            char *pos;
+            if ((pos = strchr(answerInLowercase, '\n')) != NULL) // removes \n from answer so it can be compared
+                *pos = '\0';
+            if ((pos = strchr(answerInLowercase, '\r')) != NULL)// removes \r from answer so it can be compared
+                *pos = '\0';
+
+            //Clue
+            if (difficultyLevel == 1) { // used to give different clues based on the difficulty
+                printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
+                printf("?");
+            } else if (difficultyLevel == 2) {
+                printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
+                clue_level_2(answerInLowercase);
+            } else if (difficultyLevel == 3) {
+                printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
+                clue_level_3(answerInLowercase);
+            } else if (difficultyLevel == 4) {
+                printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
+                clue_level_4(answerInLowercase);
+            } else if (difficultyLevel == 5) {
+                printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
+                clue_level_5(answerInLowercase);
+            }
+
+
+            scanf("%s", wordInput); //gets user input
+
+            for (int i = 0; wordInput[i]; i++) { //makes all the letters lowercase
+                wordInput[i] = tolower(wordInput[i]);
+            }
+
+            if (strcmp(answerInLowercase, wordInput) == 0) { //compares words to see if they are the same
+                correct++; // add to correctly answered
+                printf("Correct %d Questions Answered Correctly So Far", correct);
+            } else {
+                printf("Incorrect %d Questions Answered Correctly So Far", correct);
+                answerTracker[incorrect] = questionNumber;
+                incorrect++;
+            }
+
+            questionsAnswered++;
+            printf("\n");
+
         }
 
-        char *pos;
-        if ((pos = strchr(answerInLowercase, '\n')) != NULL) // removes \n from answer so it can be compared
-            *pos = '\0';
-        if ((pos = strchr(answerInLowercase, '\r')) != NULL)// removes \r from answer so it can be compared
-            *pos = '\0';
-
-        //Clue
-        if (difficultyLevel == 1) { // used to give different clues based on the difficulty
-            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
-            printf("?");
-        } else if (difficultyLevel == 2) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
-            clue_level_2(answerInLowercase);
-        } else if (difficultyLevel == 3) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
-            clue_level_3(answerInLowercase);
-        } else if (difficultyLevel == 4) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
-            clue_level_4(answerInLowercase);
-        } else if (difficultyLevel == 5) {
-            printf("%d:%s?\n", questionsAnswered, *questions[questionNumber]);
-            clue_level_5(answerInLowercase);
+        printf("%d questions answered correctly\n\n", correct);
+        printf("Would you like to see the answers to the questions you got wrong?(y/n) ");
+        getchar();
+        scanf("%c", &getAnswers); //gets user input if they wish to continue playing
+        getchar();
+        if (((char *) getAnswers == 'Y') || (getAnswers == 'y')) {
+            for (int i = 0; i < incorrect; ++i) {
+                int wrongQuestion = answerTracker[i];
+                printf("%d Q:%s? A:%s", i, *questions[wrongQuestion], *answers[wrongQuestion]);
+            }
         }
-
-
-        scanf("%s", wordInput); //gets user input
-
-        for (int i = 0; wordInput[i]; i++) { //makes all the letters lowercase
-            wordInput[i] = tolower(wordInput[i]);
-        }
-
-        if (strcmp(answerInLowercase, wordInput) == 0) { //compares words to see if they are the same
-            printf("Correct");
-            correct++; // add to correctly answered
-        } else {
-            printf("Incorrect");
-        }
-
-        questionsAnswered++;
-        printf("\n");
-
+        exit = 1;
     }
-    }
-    printf("%d questions answered correctly", correct);
+    print_to_File(fp, difficultyLevel, questionsCount, correct);
     return 0;
 }
