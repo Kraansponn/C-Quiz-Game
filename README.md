@@ -7,4 +7,4 @@ This is written entirely in c
 # Usage
 The question have to follow the format of : question? answer, eg(what is the captial of france? Paris)
 
-When running the programe the question file and a difficulty level has to be passed in. the difficulty level has to be between 1 and 6
+When running the programe the question file and a difficulty level has to be passed in. The difficulty level has to be between 1 and 6
